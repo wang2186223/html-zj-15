@@ -2,6 +2,8 @@
   "version": 2,
   "name": "novel-free-my",
   "public": false,
+  "buildCommand": "echo 'Static files already built'",
+  "installCommand": "echo 'No dependencies needed'",
   "cleanUrls": true,
   "trailingSlash": false,
   "outputDirectory": "docs",
