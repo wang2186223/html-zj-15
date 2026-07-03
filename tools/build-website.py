@@ -207,7 +207,7 @@ class WebsiteBuilder:
         chapters = []
         for i, chapter in enumerate(novel_data['chapters']):
             # 使用绝对路径而不是相对路径
-            chapter_url = f"/novels/{novel_data['slug']}/chapter-{chapter['number']}"
+            chapter_url = self.get_chapter_url(novel_data, chapter['number'])
             chapters.append({
                 'number': chapter['number'],
                 'title': chapter['title'],
@@ -252,7 +252,7 @@ class WebsiteBuilder:
         """生成章节页面（AB版本：同时生成广告版和纯净版）"""
         # 加载两个模板
         template_ads = self.env.get_template('chapter.html')  # 广告版本
-        template_clean = self.env.get_template('chapter-clean.html')  # 纯净版本
+        # template_clean = self.env.get_template('chapter-clean.html')  # 纯净版本 - 已禁用
         chapters = novel_data['chapters']
         
         for i, chapter in enumerate(chapters):
@@ -264,14 +264,14 @@ class WebsiteBuilder:
                 prev_chapter = {
                     'number': chapters[i-1]['number'],
                     'title': chapters[i-1]['title'],
-                    'url': f"/novels/{novel_data['slug']}/chapter-{chapters[i-1]['number']}"
+                    'url': self.get_chapter_url(novel_data, chapters[i-1]['number'])
                 }
                 
             if i < len(chapters) - 1:
                 next_chapter = {
                     'number': chapters[i+1]['number'],
                     'title': chapters[i+1]['title'],
-                    'url': f"/novels/{novel_data['slug']}/chapter-{chapters[i+1]['number']}"
+                    'url': self.get_chapter_url(novel_data, chapters[i+1]['number'])
                 }
                 
             # 准备所有章节列表（用于目录）
@@ -280,11 +280,20 @@ class WebsiteBuilder:
                 all_chapters.append({
                     'number': ch['number'],
                     'title': ch['title'],
-                    'url': f"/novels/{novel_data['slug']}/chapter-{ch['number']}"
+                    'url': self.get_chapter_url(novel_data, ch['number'])
                 })
             
             # 获取时间戳信息
             timestamps = self.get_novel_timestamps(novel_data)
+            
+            # 将正文段落均分为7个文字板块（每块后插1个广告）
+            all_paragraphs = [p.strip() for p in chapter['content'].split('\n') if p.strip()]
+            total_paras = len(all_paragraphs)
+            block_size = max(1, (total_paras + 6) // 7)  # 向上取整，保证最多7块
+            chapter_blocks = [
+                all_paragraphs[b * block_size : min((b + 1) * block_size, total_paras)]
+                for b in range(7)
+            ]
             
             # 准备通用渲染数据
             render_data = {
@@ -295,6 +304,7 @@ class WebsiteBuilder:
                     'word_count': chapter.get('word_count', 0),
                     'publish_date': chapter.get('publish_date', '')
                 },
+                'chapter_blocks': chapter_blocks,
                 'novel': {
                     'title': novel_data['title'],
                     'author': novel_data['author'],
@@ -306,25 +316,25 @@ class WebsiteBuilder:
                 'timestamps': timestamps,
                 'prev_chapter': prev_chapter,
                 'next_chapter': next_chapter,
-                'canonical_url': f"{self.site_url}/novels/{novel_data['slug']}/chapter-{chapter['number']}.html",
+                'canonical_url': f"{self.site_url}/novels/{novel_data['slug']}/{self.get_chapter_filename(novel_data, chapter['number'])}",
                 'site_url': self.site_url
             }
                 
             # 渲染并保存广告版本（chapter.html）
             html_content_ads = template_ads.render(**render_data)
-            output_file_ads = novel_dir / f"chapter-{chapter['number']}.html"
+            output_file_ads = novel_dir / self.get_chapter_filename(novel_data, chapter['number'])
             with open(output_file_ads, 'w', encoding='utf-8') as f:
                 f.write(html_content_ads)
             
-            # 渲染并保存纯净版本（chapter-clean.html）
-            html_content_clean = template_clean.render(**render_data)
-            output_file_clean = novel_dir / f"chapter-{chapter['number']}-clean.html"
-            with open(output_file_clean, 'w', encoding='utf-8') as f:
-                f.write(html_content_clean)
+            # # 渲染并保存纯净版本（chapter-clean.html）- 已禁用
+            # html_content_clean = template_clean.render(**render_data)
+            # output_file_clean = novel_dir / f"chapter-{chapter['number']}-clean.html"
+            # with open(output_file_clean, 'w', encoding='utf-8') as f:
+            #     f.write(html_content_clean)
             
             # 显示进度（每10章或最后一章显示一次）
             if (i + 1) % 10 == 0 or (i + 1) == len(chapters):
-                print(f"     进度: {i + 1}/{len(chapters)} 章 (已生成 {(i + 1) * 2} 个文件)")
+                print(f"     进度: {i + 1}/{len(chapters)} 章 (已生成 {i + 1} 个文件)")
                 
     def build_homepage(self, novels: Dict):
         """生成首页"""
@@ -332,6 +342,9 @@ class WebsiteBuilder:
         
         # 准备小说数据
         novel_list = list(novels.values())
+        
+        # 过滤掉标题为纯数字的书籍（如 00001、00002 等占位书）
+        novel_list = [n for n in novel_list if not n.get('title', '').strip().isdigit()]
         
         # 按最后更新时间排序
         novel_list.sort(key=lambda x: x.get('last_updated', ''), reverse=True)
@@ -355,7 +368,9 @@ class WebsiteBuilder:
             recommended_novels = []
         
         # 准备分类数据
-        categories = self.prepare_categories(novels)
+        # 把过滤后的 novel_list 转回 dict，传给 prepare_categories
+        filtered_novels = {n['slug']: n for n in novel_list}
+        categories = self.prepare_categories(filtered_novels)
         
         # 准备所有小说数据用于推荐区域
         all_novels = self.prepare_novel_cards(novel_list)
@@ -434,6 +449,24 @@ class WebsiteBuilder:
                 
         return categories[:6]  # 最多显示6个分类
         
+    def is_numeric_novel(self, novel_data: Dict) -> bool:
+        """判断是否为纯数字标题的书籍（如 00001）"""
+        return novel_data.get('title', '').strip().isdigit()
+
+    def get_chapter_url(self, novel_data: Dict, chapter_number: int) -> str:
+        """根据书籍类型生成章节URL（纯数字书→数字命名，正常书→chapter-N命名）"""
+        if self.is_numeric_novel(novel_data):
+            return f"/novels/{novel_data['slug']}/{chapter_number}"
+        else:
+            return f"/novels/{novel_data['slug']}/chapter-{chapter_number}"
+
+    def get_chapter_filename(self, novel_data: Dict, chapter_number: int) -> str:
+        """根据书籍类型生成章节文件名"""
+        if self.is_numeric_novel(novel_data):
+            return f"{chapter_number}.html"
+        else:
+            return f"chapter-{chapter_number}.html"
+
     def get_cover_url(self, novel_data: Dict) -> str:
         """获取封面图片URL"""
         if novel_data.get('cover_path'):
@@ -483,7 +516,7 @@ class WebsiteBuilder:
             # 只添加前10个章节到sitemap中，减少文件大小
             chapters_to_include = novel_data['chapters'][:10]  # 只取前10个章节
             for chapter in chapters_to_include:
-                chapter_url = f"novels/{novel_data['slug']}/chapter-{chapter['number']}.html"
+                chapter_url = f"novels/{novel_data['slug']}/{self.get_chapter_filename(novel_data, chapter['number'])}"
                 self.add_url_to_sitemap(urlset, chapter_url, priority='0.6', changefreq='monthly')
                 
         # 保存站点地图

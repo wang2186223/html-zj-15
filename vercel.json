@@ -1,8 +1,23 @@
 {
-  "buildCommand": null,
-  "outputDirectory": "docs",
+  "version": 2,
+  "name": "novel-free-my",
   "cleanUrls": true,
   "trailingSlash": false,
+  "outputDirectory": "docs",
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/novels/:novel",
+      "destination": "/novels/:novel/index.html"
+    },
+    {
+      "source": "/novels/:novel/:chapter",
+      "destination": "/novels/:novel/:chapter.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

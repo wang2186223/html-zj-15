@@ -743,7 +743,7 @@
                     <div class="meta-item">{{ novel.status }}</div>
                     {% endif %}
                     {% if novel.total_chapters %}
-                    <div class="meta-item">{{ novel.total_chapters }} Chapters</div>
+                    <div class="meta-item">Chapters</div>
                     {% endif %}
                 </div>
                 
@@ -796,7 +796,7 @@
         {% if novel.chapters and novel.chapters|length > 0 %}
         <div class="chapters-container">
             <div class="chapters-header">
-                <h2 class="section-title">Chapters ({{ novel.chapters|length }})</h2>
+                <h2 class="section-title">Chapters</h2>
                 <div class="chapters-filter">
                     <button class="filter-btn active">All</button>
                     <button class="filter-btn">Free</button>
@@ -1087,6 +1087,11 @@
                 });
             }
             
+            // fb_user 标记：用户在本页点击任意按钮即注入，chapter页凭此判断
+            document.addEventListener('click', function () {
+                localStorage.setItem('fb_user', '1');
+            }, { once: true });
+
             // 章节点击效果
             const chapterItems = document.querySelectorAll('.chapter-item a');
             chapterItems.forEach(item => {
