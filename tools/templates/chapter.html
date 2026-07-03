@@ -189,7 +189,7 @@
     </script>
     
     <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5678834518894660"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4058555328566888"
          crossorigin="anonymous"></script>
     
     <!-- Facebook Pixel Code -->
@@ -854,7 +854,7 @@
                   <!-- 撑开约20行高度，把真实正文推到屏幕外 -->
                   <div style="min-height:90vh;"></div>
                 </div>
-                {% set ad_slots = ['6786259683', '8783228442', '9641014542', '6300535333'] %}
+                {% set ad_slots = ['9939016452', '7779756976', '2746123385', '4686689770', '1433041710', '7806878374', '2554551699'] %}
                 {% for block in chapter_blocks %}
                 {% if block %}
                 <div class="text-block" data-block="{{ loop.index0 }}">
@@ -862,14 +862,14 @@
                     <p>{{ para }}</p>
                     {% endfor %}
                 </div>
-                {% set ad_index = loop.index0 % 4 %}
+                {% set ad_index = loop.index0 % 7 %}
                 <!-- AdSense Block Ad {{ loop.index }}/7 -->
                 <ins class="adsbygoogle"
-                     style="display:block; text-align:center;"
-                     data-ad-layout="in-article"
-                     data-ad-format="fluid"
-                     data-ad-client="ca-pub-5678834518894660"
-                     data-ad-slot="{{ ad_slots[ad_index] }}"></ins>
+                     style="display:block"
+                     data-ad-client="ca-pub-4058555328566888"
+                     data-ad-slot="{{ ad_slots[ad_index] }}"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
                 <script>
                      (adsbygoogle = window.adsbygoogle || []).push({});
                 </script>
