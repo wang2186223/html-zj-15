@@ -2372,11 +2372,14 @@
     var groups  = [];
 
     if (paras.length >= NUM) {
-      /* 段落数足够：按段平分到 7 块 */
-      var grpSize = Math.ceil(paras.length / NUM);
+      /* 先每组保底 1 段，再把剩余段均分（不会出现空组） */
+      var base = Math.floor(paras.length / NUM);
+      var remainder = paras.length % NUM;
+      var s = 0;
       for (var g = 0; g < NUM; g++) {
-        var s = g * grpSize, e = Math.min(s + grpSize, paras.length);
-        groups.push(s < paras.length ? paras.slice(s, e) : [' ']);
+        var size = base + (g < remainder ? 1 : 0);
+        groups.push(paras.slice(s, s + size));
+        s += size;
       }
     } else {
       /* 段落不足 7 段：打散成单词，按词平分到 7 块 */
