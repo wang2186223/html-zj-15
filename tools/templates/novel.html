@@ -935,15 +935,16 @@
         function initTrackingSystem() {
             saveCurrentTrackingParams();
             
-            // 为所有章节链接添加追踪参数
-            document.querySelectorAll('a[href*="/chapter-"]').forEach(link => {
-                if (link.href) {
-                    const originalHref = link.href;
-                    link.addEventListener('click', function(e) {
+            // 为所有章节链接、开始阅读、继续阅读按钮添加追踪参数
+            // 使用 a.chapter-link 选择器，兼容 /chapter-N 和纯数字 /N 两种URL格式
+            document.querySelectorAll('a.chapter-link, #start-reading-btn, #continue-reading-btn').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href !== '#') {
                         e.preventDefault();
-                        window.location.href = addTrackingParams(originalHref);
-                    });
-                }
+                        window.location.href = addTrackingParams(this.href);
+                    }
+                });
             });
             
             console.log('📊 [小说页] 追踪参数系统已初始化');
