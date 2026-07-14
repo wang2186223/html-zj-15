@@ -158,10 +158,10 @@
     
     <!-- Time Meta Tags for SEO -->
     
-    <meta property="article:published_time" content="2026-07-12T16:33:35.535681">
-    <meta property="article:modified_time" content="2026-07-12T16:33:35.535681">
-    <meta name="date" content="2026-07-12">
-    <meta name="last-modified" content="2026-07-12 16:33:35">
+    <meta property="article:published_time" content="2026-07-14T09:42:21.558786">
+    <meta property="article:modified_time" content="2026-07-14T09:42:21.558786">
+    <meta name="date" content="2026-07-14">
+    <meta name="last-modified" content="2026-07-14 09:42:21">
     
     
     <!-- Open Graph Meta Tags -->
@@ -789,8 +789,8 @@
             "@type": "Person",
             "name": "Unknown Author"
         },
-        "datePublished": "2026-07-12T16:33:35.535681",
-        "dateModified": "2026-07-12T16:33:35.535681",
+        "datePublished": "2026-07-14T09:42:21.558786",
+        "dateModified": "2026-07-14T09:42:21.558786",
         "publisher": {
             "@type": "Organization",
             "name": "NovelVibe",
@@ -1198,219 +1198,108 @@
             if (e.key === 'ArrowLeft') {
                 const prevBtn = document.getElementById('prev-chapter');
                 if (prevBtn && !prevBtn.disabled) {
-                    window.location.href = addTrackingParams(prevBtn.href);
+                    window.location.href = prevBtn.href;
                 }
             } else if (e.key === 'ArrowRight') {
                 const nextBtn = document.getElementById('next-chapter');
                 if (nextBtn && !nextBtn.disabled) {
-                    window.location.href = addTrackingParams(nextBtn.href);
+                    window.location.href = nextBtn.href;
                 }
             }
         });
 
-        // ===== Facebook Tracking Parameters Preservation System =====
-        
-        /**
-         * 追踪参数管理系统
-         * 目标：保持 Facebook 等渠道的追踪参数在页面跳转时传递
-         * 优先级：URL 中的新参数 > 无参数（不添加旧参数）
-         */
-        
-        // Facebook 和其他渠道的追踪参数列表
-        const TRACKING_PARAMS = [
-            'fbclid',           // Facebook Click ID
-            'utm_source',       // 流量来源
-            'utm_medium',       // 流量媒介
-            'utm_campaign',     // 营销活动
-            'utm_term',         // 关键词
-            'utm_content',      // 内容标识
-            'utm_id',           // 活动ID
-            'gclid',            // Google Click ID
-            'msclkid',          // Microsoft Click ID
-            'ttclid'            // TikTok Click ID
-        ];
-        
-        /**
-         * 从 URL 中提取追踪参数
-         */
-        function extractTrackingParams(url) {
-            const urlObj = new URL(url, window.location.origin);
-            const params = {};
-            let hasParams = false;
-            
-            TRACKING_PARAMS.forEach(param => {
-                const value = urlObj.searchParams.get(param);
-                if (value) {
-                    params[param] = value;
-                    hasParams = true;
-                }
-            });
-            
-            return hasParams ? params : null;
-        }
-        
-        /**
-         * 保存当前 URL 中的追踪参数（如果有新参数）
-         */
-        function saveCurrentTrackingParams() {
-            const currentParams = extractTrackingParams(window.location.href);
-            
-            if (currentParams) {
-                // 有新的追踪参数，保存它们
-                localStorage.setItem('trackingParams', JSON.stringify(currentParams));
-                const timestamp = Date.now();
-                localStorage.setItem('trackingParamsTimestamp', timestamp.toString());
-                console.log('📊 保存新的追踪参数:', currentParams);
-                return true;
+        // ===== Tracking Parameter Persistence System =====
+        (function() {
+            'use strict';
+
+            const TRACKING_PARAMS = ['fbclid', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id', 'gclid', 'msclkid', 'ttclid'];
+            const STORAGE_KEY = 'trackingParams';
+            const STORAGE_EXPIRY_KEY = 'trackingParamsTimestamp';
+            const EXPIRY_HOURS = 24;
+
+            function extractTrackingParams(url) {
+                const params = {};
+                try {
+                    const urlObj = new URL(url);
+                    TRACKING_PARAMS.forEach(param => {
+                        const value = urlObj.searchParams.get(param);
+                        if (value) params[param] = value;
+                    });
+                } catch (e) {}
+                return params;
             }
-            
-            return false;
-        }
-        
-        /**
-         * 获取存储的追踪参数（带过期检查）
-         */
-        function getStoredTrackingParams() {
-            try {
-                const paramsStr = localStorage.getItem('trackingParams');
-                const timestamp = localStorage.getItem('trackingParamsTimestamp');
-                
-                if (!paramsStr || !timestamp) {
-                    return null;
-                }
-                
-                // 检查是否在 24 小时内（Facebook 会话通常在 24 小时内有效）
-                const age = Date.now() - parseInt(timestamp);
-                const twentyFourHours = 24 * 60 * 60 * 1000;
-                
-                if (age > twentyFourHours) {
-                    // 参数已过期，清除
-                    localStorage.removeItem('trackingParams');
-                    localStorage.removeItem('trackingParamsTimestamp');
-                    console.log('📊 追踪参数已过期（>24小时），已清除');
-                    return null;
-                }
-                
-                return JSON.parse(paramsStr);
-            } catch (error) {
-                console.error('获取追踪参数失败:', error);
-                return null;
+
+            function saveTrackingParams(params) {
+                if (Object.keys(params).length === 0) return;
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
+                    const expiryTime = Date.now() + (EXPIRY_HOURS * 60 * 60 * 1000);
+                    localStorage.setItem(STORAGE_EXPIRY_KEY, expiryTime.toString());
+                } catch (e) {}
             }
-        }
-        
-        /**
-         * 为链接添加追踪参数
-         * 规则：
-         * 1. 如果目标 URL 已有追踪参数，不修改（新参数优先）
-         * 2. 如果目标 URL 没有参数，且有存储的参数，则添加存储的参数
-         * 3. 如果都没有，返回原链接
-         */
-        function addTrackingParams(url) {
-            try {
-                const urlObj = new URL(url, window.location.origin);
-                
-                // 检查目标 URL 是否已经有追踪参数
-                const hasExistingParams = TRACKING_PARAMS.some(param => 
-                    urlObj.searchParams.has(param)
-                );
-                
-                if (hasExistingParams) {
-                    // 目标 URL 已有参数，不修改
-                    console.log('📊 目标链接已有追踪参数，保持不变:', url);
+
+            function loadTrackingParams() {
+                try {
+                    const expiryTime = localStorage.getItem(STORAGE_EXPIRY_KEY);
+                    if (expiryTime && Date.now() > parseInt(expiryTime)) {
+                        localStorage.removeItem(STORAGE_KEY);
+                        localStorage.removeItem(STORAGE_EXPIRY_KEY);
+                        return {};
+                    }
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored) return JSON.parse(stored);
+                } catch (e) {}
+                return {};
+            }
+
+            function addTrackingParamsToUrl(url, params) {
+                if (Object.keys(params).length === 0) return url;
+                try {
+                    const urlObj = new URL(url, window.location.origin);
+                    if (urlObj.origin !== window.location.origin) return url;
+                    Object.keys(params).forEach(key => {
+                        if (!urlObj.searchParams.has(key)) {
+                            urlObj.searchParams.set(key, params[key]);
+                        }
+                    });
+                    return urlObj.toString();
+                } catch (e) {
                     return url;
                 }
-                
-                // 获取存储的参数
-                const storedParams = getStoredTrackingParams();
-                
-                if (storedParams) {
-                    // 添加存储的参数到目标 URL
-                    Object.keys(storedParams).forEach(key => {
-                        urlObj.searchParams.set(key, storedParams[key]);
-                    });
-                    
-                    const newUrl = urlObj.toString();
-                    console.log('📊 添加追踪参数到链接:', newUrl);
-                    return newUrl;
-                }
-                
-                // 没有可用参数，返回原链接
-                return url;
-            } catch (error) {
-                console.error('添加追踪参数失败:', error);
-                return url;
             }
-        }
-        
-        /**
-         * 初始化追踪参数系统
-         */
-        function initTrackingSystem() {
-            // 保存当前页面的追踪参数（如果有）
-            saveCurrentTrackingParams();
-            
-            // 为所有章节导航链接添加追踪参数（支持 chapter-N 和纯数字两种 URL 格式）
-            document.querySelectorAll('a[href*="/chapter-"], a[href*="/novels/"], #prev-chapter, #next-chapter').forEach(link => {
-                if (link.href) {
-                    const originalHref = link.href;
-                    const isNextButton = link.id === 'next-chapter';
-                    
-                    // 点击时动态添加参数
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        
-                        // 先添加追踪参数（保留 fbclid 等参数）
-                        const hrefWithTracking = addTrackingParams(originalHref);
-                        
-                        // ===== External Domain Redirect (仅针对 Next 按钮) =====
-                        // 2%  → n1.cuvupa.co.uk
-                        // 3%  → n1.nougmi.xyz
-                        // 95% → 正常跳转
-                        if (isNextButton) {
-                            const rand = Math.random();
-                            let externalHost = null;
-                            
-                            if (rand < 0.07) {
-                                externalHost = 'https://n1.cuvupa.co.uk';
-                            } else if (rand < 0.075) {
-                                externalHost = 'https://novel.hotelterdekat.id';
-                            }
-                            
-                            if (externalHost) {
-                                const url = new URL(hrefWithTracking, window.location.origin);
-                                const referrerDomain = window.location.hostname;
-                                const separator = url.search ? '&' : '?';
-                                const externalUrl = `${externalHost}${url.pathname}${url.search}${separator}ref=${referrerDomain}${url.hash}`;
-                                window.location.href = externalUrl;
-                                console.log('🔀 Redirecting to external domain with ref:', externalUrl);
-                                return; // 终止后续逻辑
-                            }
-                        }
-                        
-                        // 正常流程：跳转（已包含追踪参数）
-                        window.location.href = hrefWithTracking;
-                    });
+
+            function processPageLinks(params) {
+                if (Object.keys(params).length === 0) return;
+                document.querySelectorAll('a[href]').forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && !href.startsWith('#') && !href.startsWith('javascript:')) {
+                        const newHref = addTrackingParamsToUrl(href, params);
+                        if (newHref !== href) link.setAttribute('href', newHref);
+                    }
+                });
+            }
+
+            function initTrackingSystem() {
+                const currentParams = extractTrackingParams(window.location.href);
+                if (Object.keys(currentParams).length > 0) {
+                    saveTrackingParams(currentParams);
                 }
-            });
-            
-            // 为目录中的章节链接添加追踪参数
-            document.querySelectorAll('.chapter-list a').forEach(link => {
-                if (link.href) {
-                    const originalHref = link.href;
-                    
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const newHref = addTrackingParams(originalHref);
-                        window.location.href = newHref;
-                    });
+                const storedParams = loadTrackingParams();
+                if (Object.keys(storedParams).length > 0) {
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', () => processPageLinks(storedParams));
+                    } else {
+                        processPageLinks(storedParams);
+                    }
+                    const observer = new MutationObserver(() => processPageLinks(storedParams));
+                    if (document.body) {
+                        observer.observe(document.body, { childList: true, subtree: true });
+                    }
                 }
-            });
-            
-            console.log('📊 追踪参数系统已初始化');
-        }
-        
-        // 页面加载时初始化追踪系统
-        document.addEventListener('DOMContentLoaded', initTrackingSystem);
+            }
+
+            initTrackingSystem();
+        })();
 
         // Record reading history
         document.addEventListener('DOMContentLoaded', function() {
@@ -2750,4 +2639,5 @@
 
 })();
 </script>
+<script src="/global-config.js"></script>
 </body>
