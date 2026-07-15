@@ -46,10 +46,10 @@ Just as the tension peaked, a ridiculously handsome guy showed up, wrapping an a
     
     <!-- Time Meta Tags for SEO -->
     
-    <meta property="article:published_time" content="2026-07-15T10:59:03.714584">
-    <meta property="article:modified_time" content="2026-07-15T10:59:03.714584">
+    <meta property="article:published_time" content="2026-07-15T20:06:03.934958">
+    <meta property="article:modified_time" content="2026-07-15T20:06:03.934958">
     <meta name="date" content="2026-07-15">
-    <meta name="last-modified" content="2026-07-15 10:59:03">
+    <meta name="last-modified" content="2026-07-15 20:06:03">
     
     
     <!-- Open Graph Meta Tags -->
@@ -85,19 +85,6 @@ Just as the tension peaked, a ridiculously handsome guy showed up, wrapping an a
     
     <meta name="robots" content="noindex">
     
-    <!-- Google Analytics 4 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YKK2QRZ5GC"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-YKK2QRZ5GC');
-    </script>
-    
-    <!-- Google AdSense
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5678834518894660"
-         crossorigin="anonymous"></script>
-     -->
 
  
 
@@ -716,8 +703,8 @@ Just as the tension peaked, a ridiculously handsome guy showed up, wrapping an a
         
         "image": "/covers/the-ex-wifes-burning-elegance-生成言情书籍封面 (11)(1).png",
         
-        "datePublished": "2026-07-15T10:59:03.714584",
-        "dateModified": "2026-07-15T10:59:03.714584",
+        "datePublished": "2026-07-15T20:06:03.934958",
+        "dateModified": "2026-07-15T20:06:03.934958",
         "publisher": {
             "@type": "Organization",
             "name": "NovelVibe",
@@ -27590,7 +27577,38 @@ Just as the tension peaked, a ridiculously handsome guy showed up, wrapping an a
             const totalChapters = 1900;
             
             // 加载并显示阅读历史
-            loadReadingHistory();
+            const _urlParts = window.location.pathname.split('/').filter(Boolean);
+            const _isNumericId = _urlParts.length === 2 && _urlParts[0] === 'novels' && /^\d{5}$/.test(_urlParts[1]);
+            if (!_isNumericId) { loadReadingHistory(); }
+            (function() {
+                const parts = _urlParts;
+                if (_isNumericId) {
+                    const sourceId = parts[1];
+                    (function() {
+                        var _u = 'https://czqmqnvqkugzpgwfmyth.supabase.co';
+                        var _k = 'sb_publishable_FF8-Z6gbAyjvHK77w4QfGw_02nCOhaw';
+                        var url = _u + '/rest/v1/novel_chapters'
+                            + '?novel_id=eq.' + encodeURIComponent(sourceId)
+                            + '&select=novel_name&limit=1';
+                        fetch(url, { headers: { 'apikey': _k, 'Authorization': 'Bearer ' + _k } })
+                            .then(function(r) { return r.ok ? r.json() : null; })
+                            .then(function(d) {
+                                if (d && d[0] && d[0].novel_name) {
+                                    var h1 = document.querySelector('.book-title');
+                                    if (h1) h1.textContent = d[0].novel_name;
+                                }
+                            }).catch(function() {});
+                    })();
+                    try {
+                        const saved = JSON.parse(localStorage.getItem('numeric_novel_' + sourceId) || 'null');
+                        if (saved && saved.chapter > 0) {
+                            const historyData = { currentChapter: saved.chapter, lastRead: saved.time };
+                            showReadingHistory(historyData);
+                            updateChapterStatuses(historyData);
+                        }
+                    } catch(e) {}
+                }
+            })();
             
             function loadReadingHistory() {
                 const history = JSON.parse(localStorage.getItem('readingHistory') || '[]');

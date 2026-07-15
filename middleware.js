@@ -1,7 +1,7 @@
 // 内部测试专用密钥，访问任意章节页带上 ?key=该值 即可自动激活通行证
 const BYPASS_KEY = 'rd2026xT';
 
-export default function middleware(request) {
+export default async function middleware(request) {
   const userAgent = request.headers.get('user-agent') || '';
 
   // 1. 核心白名单：谷歌广告蜘蛛直接放行，确保广告正常吐出来
@@ -20,19 +20,44 @@ export default function middleware(request) {
     );
   }
 
-  // 3. 只对章节页做拦截，小说目录页（/novels/书名）始终公开
+  // 3. 解析路径
   const segments = url.pathname.split('/').filter(Boolean);
-  const isChapterPage = segments.length >= 3; // ['novels', '书名', '章节名']
-  if (!isChapterPage) {
-    return; // 目录页直接放行
+  const isChapterPage = segments.length >= 3;
+
+  async function rewriteFrom00000(rewritePath, sourceId) {
+    const rewriteUrl = new URL(request.url);
+    rewriteUrl.pathname = rewritePath;
+    rewriteUrl.search = '';
+    const resp = await fetch(rewriteUrl.toString(), {
+      headers: { 'cookie': 'reader_auth=passed_verification' },
+    });
+    const html = (await resp.text()).replaceAll('/novels/00000', `/novels/${sourceId}`);
+    const newHeaders = new Headers(resp.headers);
+    newHeaders.set('content-type', 'text/html; charset=utf-8');
+    return new Response(html, { status: resp.status, headers: newHeaders });
   }
 
-  // 4. 检查是否有"真实读者通行证" Cookie
+  const isNumericId =
+    segments.length >= 2 &&
+    /^\d{5}$/.test(segments[1]) &&
+    segments[1] !== '00000';
+
+  if (isNumericId) {
+    if (!isChapterPage) {
+      return rewriteFrom00000('/novels/00000', segments[1]);
+    }
+  }
+
+  if (!isChapterPage) { return; }
+
   const cookieHeader = request.headers.get('cookie') || '';
   const hasAuth = cookieHeader.includes('reader_auth=passed_verification');
 
   if (hasAuth) {
-    return; // 有通行证，放行（用户翻页无感知）
+    if (isNumericId) {
+      return rewriteFrom00000(`/novels/00000/${segments.slice(2).join('/')}`, segments[1]);
+    }
+    return;
   }
 
   // 3. 拦截：返回验证页面（爬虫看到的是这个 HTML，不是真实章节内容）

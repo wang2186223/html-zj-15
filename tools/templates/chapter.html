@@ -177,19 +177,11 @@
     <meta name="twitter:description" content="{% if chapter.summary %}{{ chapter.summary }}{% else %}Read {{ novel.title }} online{% endif %}">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="{{ canonical_url }}">
+    {% if novel_slug == '00000' %}<link rel="canonical" href="https://novel.moymu.top/novels/00000/{{ chapter.number }}" />{% endif %}
     
     <meta name="robots" content="noindex">
     
-    <!-- Google Analytics 4 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YKK2QRZ5GC"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-YKK2QRZ5GC');
-    </script>
-    
+
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7872230883309570"
          crossorigin="anonymous"></script>
@@ -1121,6 +1113,16 @@
             history = history.slice(0, 5);
             
             localStorage.setItem('readingHistory', JSON.stringify(history));
+
+            (function() {
+                const parts = window.location.pathname.split('/').filter(Boolean);
+                if (parts.length === 3 && parts[0] === 'novels' && /^\d{5}$/.test(parts[1])) {
+                    localStorage.setItem('numeric_novel_' + parts[1], JSON.stringify({
+                        chapter: parseInt(parts[2], 10) || 1,
+                        time: Date.now()
+                    }));
+                }
+            })();
         });
 
         // ===== Ad Click Guide System =====

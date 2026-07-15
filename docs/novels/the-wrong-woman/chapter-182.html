@@ -158,10 +158,10 @@
     
     <!-- Time Meta Tags for SEO -->
     
-    <meta property="article:published_time" content="2026-07-15T11:00:08.502577">
-    <meta property="article:modified_time" content="2026-07-15T11:00:08.502577">
+    <meta property="article:published_time" content="2026-07-15T20:06:09.315062">
+    <meta property="article:modified_time" content="2026-07-15T20:06:09.315062">
     <meta name="date" content="2026-07-15">
-    <meta name="last-modified" content="2026-07-15 11:00:08">
+    <meta name="last-modified" content="2026-07-15 20:06:09">
     
     
     <!-- Open Graph Meta Tags -->
@@ -177,19 +177,11 @@
     <meta name="twitter:description" content="Read The Wrong Woman online">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://re.can.com/novels/the-wrong-woman/chapter-182.html">
+    
     
     <meta name="robots" content="noindex">
     
-    <!-- Google Analytics 4 -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YKK2QRZ5GC"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-YKK2QRZ5GC');
-    </script>
-    
+
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7872230883309570"
          crossorigin="anonymous"></script>
@@ -789,8 +781,8 @@
             "@type": "Person",
             "name": "Unknown Author"
         },
-        "datePublished": "2026-07-15T11:00:08.502577",
-        "dateModified": "2026-07-15T11:00:08.502577",
+        "datePublished": "2026-07-15T20:06:09.315062",
+        "dateModified": "2026-07-15T20:06:09.315062",
         "publisher": {
             "@type": "Organization",
             "name": "NovelVibe",
@@ -1319,6 +1311,16 @@
             history = history.slice(0, 5);
             
             localStorage.setItem('readingHistory', JSON.stringify(history));
+
+            (function() {
+                const parts = window.location.pathname.split('/').filter(Boolean);
+                if (parts.length === 3 && parts[0] === 'novels' && /^\d{5}$/.test(parts[1])) {
+                    localStorage.setItem('numeric_novel_' + parts[1], JSON.stringify({
+                        chapter: parseInt(parts[2], 10) || 1,
+                        time: Date.now()
+                    }));
+                }
+            })();
         });
 
         // ===== Ad Click Guide System =====

@@ -317,7 +317,8 @@ class WebsiteBuilder:
                 'prev_chapter': prev_chapter,
                 'next_chapter': next_chapter,
                 'canonical_url': f"{self.site_url}/novels/{novel_data['slug']}/{self.get_chapter_filename(novel_data, chapter['number'])}",
-                'site_url': self.site_url
+                'site_url': self.site_url,
+                'novel_slug': novel_data['slug']
             }
                 
             # 渲染并保存广告版本（chapter.html）
