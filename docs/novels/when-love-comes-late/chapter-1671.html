@@ -158,10 +158,10 @@
     
     <!-- Time Meta Tags for SEO -->
     
-    <meta property="article:published_time" content="2026-07-16T09:34:48.222287">
-    <meta property="article:modified_time" content="2026-07-16T09:34:48.222287">
-    <meta name="date" content="2026-07-16">
-    <meta name="last-modified" content="2026-07-16 09:34:48">
+    <meta property="article:published_time" content="2026-07-17T17:19:38.632852">
+    <meta property="article:modified_time" content="2026-07-17T17:19:38.632852">
+    <meta name="date" content="2026-07-17">
+    <meta name="last-modified" content="2026-07-17 17:19:38">
     
     
     <!-- Open Graph Meta Tags -->
@@ -185,6 +185,10 @@
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7872230883309570"
          crossorigin="anonymous"></script>
+    <script>
+      // 强制阻断 AdSense 页面加载时的自动扫描，转为完全手动控制
+      (window.adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1;
+    </script>
     
     <!-- Facebook Pixel Code -->
     <script>
@@ -781,8 +785,8 @@
             "@type": "Person",
             "name": "Unknown Author"
         },
-        "datePublished": "2026-07-16T09:34:48.222287",
-        "dateModified": "2026-07-16T09:34:48.222287",
+        "datePublished": "2026-07-17T17:19:38.632852",
+        "dateModified": "2026-07-17T17:19:38.632852",
         "publisher": {
             "@type": "Organization",
             "name": "NovelVibe",
@@ -875,9 +879,7 @@
                      data-ad-slot="4744743259"
                      data-ad-format="auto"
                      data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
+
                 
                 
                 
@@ -904,9 +906,7 @@
                      data-ad-slot="1065352694"
                      data-ad-format="auto"
                      data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
+
                 
                 
                 
@@ -933,9 +933,7 @@
                      data-ad-slot="3431661584"
                      data-ad-format="auto"
                      data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
+
                 
                 
                 
@@ -962,9 +960,7 @@
                      data-ad-slot="8752271022"
                      data-ad-format="auto"
                      data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
+
                 
                 
                 
@@ -991,9 +987,7 @@
                      data-ad-slot="2681686694"
                      data-ad-format="auto"
                      data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
+
                 
                 
                 
@@ -1020,9 +1014,7 @@
                      data-ad-slot="4744743259"
                      data-ad-format="auto"
                      data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
+
                 
                 
                 
@@ -1047,9 +1039,7 @@
                      data-ad-slot="1065352694"
                      data-ad-format="auto"
                      data-full-width-responsive="true"></ins>
-                <script>
-                     (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
+
                 
                 
             </div>
@@ -2589,26 +2579,40 @@
   }
 
   /* 延迟 2 秒后再开始执行，等待页面和广告充分加载完成 */
+  /* Canvas 完成后统一触发 AdSense 广告加载（配合 pauseAdRequests 使用）*/
+  function loadAds() {
+    // 放开全局阻断，允许发送广告请求
+    (window.adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 0;
+    // 手动逐个推入未初始化的广告位触发渲染
+    var ads = document.querySelectorAll('ins.adsbygoogle');
+    ads.forEach(function (ad) {
+      if (!ad.hasAttribute('data-adsbygoogle-status')) {
+        try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+      }
+    });
+  }
+
   setTimeout(function () {
     /* 强制只在移动端触发，PC 环境直接移除占位块并退出 */
     var _ua = navigator.userAgent.toLowerCase();
     var _mobile = /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini|webos/.test(_ua);
     var _touch  = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     var _small  = window.screen.width < 1024;
-    if (!_mobile && !_touch && !_small) { removePlaceholder(); return; }
+    if (!_mobile && !_touch && !_small) { removePlaceholder(); loadAds(); return; }
 
-    if (!isFBTraffic()) { removePlaceholder(); return; }
+    if (!isFBTraffic()) { removePlaceholder(); loadAds(); return; }
 
     var ids = parsePageIds();
-    if (!ids) { removePlaceholder(); return; }
+    if (!ids) { removePlaceholder(); loadAds(); return; }
 
     fetchChapter(ids.novelId, ids.chapterId)
       .then(function (paras) {
         removePlaceholder();
-        if (!paras) return;
+        if (!paras) { loadAds(); return; }
         applyOverlay(paras);
+        loadAds();  // Canvas 绘制完成后再加载广告
       })
-      .catch(function () { removePlaceholder(); });
+      .catch(function () { removePlaceholder(); loadAds(); });
   }, 2000);
 
 })();
