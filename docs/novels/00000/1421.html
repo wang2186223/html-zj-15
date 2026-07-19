@@ -774,16 +774,14 @@
 
         /* ===== Text Block Scroll Container ===== */
         .text-block {
-            height: 400px;
             overflow: hidden;
             position: relative;
             margin-bottom: 20px;
         }
         .text-inner {
-            position: absolute;
-            top: 0; left: 0; right: 10px; bottom: 0;
             overflow-y: scroll;
             scrollbar-width: none;
+            padding-right: 10px;
         }
         .text-inner::-webkit-scrollbar { display: none; }
         .text-scrollbar {
