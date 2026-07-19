@@ -2687,6 +2687,12 @@
           inner.addEventListener('touchend',    function () { lastY = null; });
           inner.addEventListener('touchcancel', function () { lastY = null; });
 
+          /* 鼠标滚轮 → 滚动整个页面（与 touch 逻辑一致） */
+          inner.addEventListener('wheel', function (e) {
+            e.preventDefault();
+            window.scrollBy(0, e.deltaY);
+          }, { passive: false });
+
           /* 触摸滚动条 thumb → 滚动容器内文字 */
           thumb.addEventListener('touchstart', function (e) {
             drag = { inner: inner, bar: bar, thumb: thumb, startY: e.touches[0].clientY, scrollStart: inner.scrollTop };
