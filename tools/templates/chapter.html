@@ -887,6 +887,7 @@
                 {% if block %}
                 <div class="text-block" data-block="{{ loop.index0 }}">
                     <div class="text-inner">
+                        <h2 style="font-size:16px;font-weight:bold;font-style:italic;margin-bottom:12px;">No.{{ loop.index }}</h2>
                         {% for para in block %}
                         <p>{{ para }}</p>
                         {% endfor %}
