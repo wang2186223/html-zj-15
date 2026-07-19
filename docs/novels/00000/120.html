@@ -677,15 +677,6 @@
             margin-bottom: 20px;
         }
 
-        .chapter-block {
-            height: 400px;
-            overflow-x: hidden;      /* 横向绝对截断 */
-            overflow-y: auto;        /* 纵向可内部滚动 */
-            position: relative;      /* 建立层叠上下文，防止子元素逃逸 */
-            margin-top: 20px;        /* 容器与上方广告间距 */
-            margin-bottom: 20px;     /* 容器与下方广告间距 */
-        }
-
         .font-controls {
             display: flex;
             gap: 10px;
@@ -780,6 +771,61 @@
                 font-size: 14px;
             }
         }
+
+        /* ===== Text Block Scroll System ===== */
+        .text-block {
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .text-inner {
+            height: 100%;
+            overflow-y: scroll;
+            scrollbar-width: none;
+            padding-right: 28px;
+            box-sizing: border-box;
+        }
+
+        .text-inner::-webkit-scrollbar {
+            display: none;
+        }
+
+        .text-scroll-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 24px;
+            height: 100%;
+            background: rgba(0, 122, 255, 0.06);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            z-index: 2;
+        }
+
+        .text-scroll-btn:active {
+            cursor: grabbing;
+            background: rgba(0, 122, 255, 0.14);
+        }
+
+        .text-scroll-btn::after {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 2px;
+            opacity: 0.35;
+        }
+
+        .dark-mode .text-scroll-btn {
+            background: rgba(10, 132, 255, 0.08);
+        }
     </style>
     
     <!-- Schema.org Structured Data for Article -->
@@ -859,8 +905,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="0">
+                <div class="text-block" data-block="0">
+                    <div class="text-inner">
                         
                         <p>&#34;Say yes! Say yes! Say yes!&#34;</p>
                         
@@ -883,6 +929,7 @@
                         <p>His gaze remained steady, lips curling triumphantly.</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 1/7 -->
@@ -896,8 +943,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="1">
+                <div class="text-block" data-block="1">
+                    <div class="text-inner">
                         
                         <p>&#34;Isabella, please accept my proposal.&#34;</p>
                         
@@ -920,6 +967,7 @@
                         <p>If this photograph became public knowledge…</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 2/7 -->
@@ -933,8 +981,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="2">
+                <div class="text-block" data-block="2">
+                    <div class="text-inner">
                         
                         <p>The entire world would learn her secret.</p>
                         
@@ -957,6 +1005,7 @@
                         <p>Meanwhile, Victoria watched from her hospital room.</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 3/7 -->
@@ -970,8 +1019,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="3">
+                <div class="text-block" data-block="3">
+                    <div class="text-inner">
                         
                         <p>Her fists clenched until knuckles turned white.</p>
                         
@@ -994,6 +1043,7 @@
                         <p>Securing Montgomery inheritance benefited them both.</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 4/7 -->
@@ -1007,8 +1057,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="4">
+                <div class="text-block" data-block="4">
+                    <div class="text-inner">
                         
                         <p>Becoming the legitimate heiress…</p>
                         
@@ -1031,6 +1081,7 @@
                         <p>Back at the Celestial Gala, Alexander remained kneeling.</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 5/7 -->
@@ -1044,8 +1095,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="5">
+                <div class="text-block" data-block="5">
+                    <div class="text-inner">
                         
                         <p>His handsome features radiate confident expectation.</p>
                         
@@ -1068,6 +1119,7 @@
                         <p>Alexander&#39;s brows furrowed. An uneasy feeling settled in his chest. Three conditions? What could she possibly demand?</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 6/7 -->
@@ -1081,8 +1133,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="6">
+                <div class="text-block" data-block="6">
+                    <div class="text-inner">
                         
                         <p>Meanwhile, at Ravencliff...</p>
                         
@@ -1093,6 +1145,7 @@
                         <p>Even without seeing his face, his commanding presence was undeniable. The man emerged fully and shut the door with a sharp motion.</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 7/7 -->
@@ -2394,6 +2447,36 @@
             // Expose instance globally for debugging
             window.adGuideSystem = adGuideSystem;
         });
+
+        // ===== Text Block Scroll Button =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Block native touch-scroll inside .text-inner
+            document.querySelectorAll('.text-inner').forEach(function(inner) {
+                inner.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                }, { passive: false });
+            });
+
+            // Drag the right-side button to scroll the inner text
+            document.querySelectorAll('.text-scroll-btn').forEach(function(btn) {
+                var inner = btn.previousElementSibling; // .text-inner
+                var startY = 0, startScroll = 0;
+
+                btn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    startY = e.touches[0].clientY;
+                    startScroll = inner.scrollTop;
+                }, { passive: false });
+
+                btn.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                    var dy = e.touches[0].clientY - startY;
+                    var maxScrollable = inner.scrollHeight - inner.clientHeight;
+                    var sensitivity = Math.max(3, maxScrollable / inner.clientHeight);
+                    inner.scrollTop = startScroll + dy * sensitivity;
+                }, { passive: false });
+            });
+        });
     </script>
     
     <!-- FB URL Tracker -->
@@ -2486,7 +2569,7 @@
      · canvas：position:absolute; top = rect.top + scrollY（文档绝对坐标）
      · 滚动时 body absolute 随文档走，无需 scroll listener，零延迟     */
   function applyOverlay(paras) {
-    var blocks  = Array.from(document.querySelectorAll('.chapter-block'));
+    var blocks  = Array.from(document.querySelectorAll('.text-block'));
     var NUM     = 7;
     var groups  = [];
 
@@ -2581,10 +2664,8 @@
       var textH   = lines.reduce(function (h, l) { return h + lineH + (l.gap ? pGap : 0); }, 0);
       var canvasH = Math.ceil(textH + lineH + pGap);
 
-      /* ② 直接将容器高度设为 canvas 高度，精准配平 */
-      block.style.height   = canvasH + 'px';
-      block.style.overflow = 'hidden';
-      /* canvas 高度 = 容器高度 = canvasH，精准配平完成 */
+      /* ② 直接将容器高度设为 canvas 所需高度，精准配平 */
+      block.style.height = canvasH + 'px';
 
       canvas.width        = Math.ceil(maxW     * curDpr);
       canvas.height       = Math.ceil(canvasH  * curDpr);

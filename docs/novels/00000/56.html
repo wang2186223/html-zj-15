@@ -677,15 +677,6 @@
             margin-bottom: 20px;
         }
 
-        .chapter-block {
-            height: 400px;
-            overflow-x: hidden;      /* 横向绝对截断 */
-            overflow-y: auto;        /* 纵向可内部滚动 */
-            position: relative;      /* 建立层叠上下文，防止子元素逃逸 */
-            margin-top: 20px;        /* 容器与上方广告间距 */
-            margin-bottom: 20px;     /* 容器与下方广告间距 */
-        }
-
         .font-controls {
             display: flex;
             gap: 10px;
@@ -780,6 +771,61 @@
                 font-size: 14px;
             }
         }
+
+        /* ===== Text Block Scroll System ===== */
+        .text-block {
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .text-inner {
+            height: 100%;
+            overflow-y: scroll;
+            scrollbar-width: none;
+            padding-right: 28px;
+            box-sizing: border-box;
+        }
+
+        .text-inner::-webkit-scrollbar {
+            display: none;
+        }
+
+        .text-scroll-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 24px;
+            height: 100%;
+            background: rgba(0, 122, 255, 0.06);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            z-index: 2;
+        }
+
+        .text-scroll-btn:active {
+            cursor: grabbing;
+            background: rgba(0, 122, 255, 0.14);
+        }
+
+        .text-scroll-btn::after {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 2px;
+            opacity: 0.35;
+        }
+
+        .dark-mode .text-scroll-btn {
+            background: rgba(10, 132, 255, 0.08);
+        }
     </style>
     
     <!-- Schema.org Structured Data for Article -->
@@ -859,8 +905,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="0">
+                <div class="text-block" data-block="0">
+                    <div class="text-inner">
                         
                         <p>Her entire reason for returning was to crush Victoria. To destroy her modeling career utterly. Only when backed into a corner would Victoria’s true, vile nature show. Then the Montgomery family would finally see the truth. Anything that displeased Victoria pleased her immensely.</p>
                         
@@ -881,6 +927,7 @@
                         <p>It wandered across the room and into the kitchen.</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 1/7 -->
@@ -894,8 +941,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="1">
+                <div class="text-block" data-block="1">
+                    <div class="text-inner">
                         
                         <p>Nathaniel stood there. A stark gray apron was tied over his impeccably tailored suit. He was washing dishes. The contrast was almost jarring. The formal business attire looked utterly out of place against the domestic backdrop of the kitchen. His movements were efficient, yet somehow still carried an air of practiced unfamiliarity. Outside, the heavy downpour had ceased. A single, brilliant beam of sunlight broke through the dissipating clouds. It cut through the window.</p>
                         
@@ -916,6 +963,7 @@
                         <p>“Why not?” Isabella scowled. What excuse had he concocted now to linger?</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 2/7 -->
@@ -929,8 +977,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="2">
+                <div class="text-block" data-block="2">
+                    <div class="text-inner">
                         
                         <p>“Did you thoroughly read the agreement before you signed?” he asked, his voice devoid of any humor.</p>
                         
@@ -951,6 +999,7 @@
                         <p>He maintained his perfectly straight face. “What’s the issue? Pre-event practice is standard protocol.”</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 3/7 -->
@@ -964,8 +1013,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="3">
+                <div class="text-block" data-block="3">
+                    <div class="text-inner">
                         
                         <p>“Is it really?” she asked, her eyes narrowing into dangerous slits. A sharp, suspicious gleam flashed within them. Even if it was protocol, his motives were absolutely not pure.</p>
                         
@@ -986,6 +1035,7 @@
                         <p>The internet was obsessed with Isabella. Her popularity dwarfed Victoria’s by over tenfold. Netizens marveled at her stunning reversal and ultimate victory. They were captivated by her beauty, her eloquence, her sheer presence. Isabella seemed flawless.</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 4/7 -->
@@ -999,8 +1049,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="4">
+                <div class="text-block" data-block="4">
+                    <div class="text-inner">
                         
                         <p>Victoria’s fists clenched. Jealousy and pure hatred radiated from her in waves. “This is unbearable. I want to destroy her. I want my glory back,” she seethed internally.</p>
                         
@@ -1021,6 +1071,7 @@
                         <p>Victoria’s expression tightened. The annual Mercedes Auto Show hired Isabella? She always believed they exclusively used foreign models. Mercedes was a premier luxury brand. The attendees were elite, the absolute pinnacle of society.</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 5/7 -->
@@ -1034,8 +1085,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="5">
+                <div class="text-block" data-block="5">
+                    <div class="text-inner">
                         
                         <p>The previous year, Victoria herself had tried for a spot and was flatly rejected. She couldn’t believe Isabella was hired. A complete newcomer. It was impossible. And they wanted her to play second fiddle?</p>
                         
@@ -1056,6 +1107,7 @@
                         <p>Victoria took her mother&#39;s hand, her tone soft and pleading. &#34;Mother, we grew up together. Through everything, I will always care for her. I truly believe love can change a person. She will see my sincerity one day and return to the family. We can be a real family again! Staying cooped up here just lets my mind wander to dark places. Please, let me do the Auto Show.&#34;</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 6/7 -->
@@ -1069,8 +1121,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="6">
+                <div class="text-block" data-block="6">
+                    <div class="text-inner">
                         
                         <p>She finished with a coquettish pout, still clinging to Eleanor&#39;s hand. Eleanor sighed in exasperated defeat. &#34;Fine. I can never say no to you. But remember this. If she dares to bully you this time, I will not stand idly by. I will mobilize the full force of the Kensington family against her. I will drive her straight out of Westchester for good!&#34;</p>
                         
@@ -1091,6 +1143,7 @@
                         <p>In the following days, Isabella and the other top models were immersed in intense preparations. Nathaniel Blackwood, wanting to shield her from clashes, arranged for her to practice separately. Throughout the entire training period, Isabella saw no one, not even Victoria. The peace was a welcome respite. In her spare time, she assisted Adrian Sinclair with managing GoldenPhoenix Entertainment and continued her investigation into the events from five years ago.</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 7/7 -->
@@ -2392,6 +2445,36 @@
             // Expose instance globally for debugging
             window.adGuideSystem = adGuideSystem;
         });
+
+        // ===== Text Block Scroll Button =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Block native touch-scroll inside .text-inner
+            document.querySelectorAll('.text-inner').forEach(function(inner) {
+                inner.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                }, { passive: false });
+            });
+
+            // Drag the right-side button to scroll the inner text
+            document.querySelectorAll('.text-scroll-btn').forEach(function(btn) {
+                var inner = btn.previousElementSibling; // .text-inner
+                var startY = 0, startScroll = 0;
+
+                btn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    startY = e.touches[0].clientY;
+                    startScroll = inner.scrollTop;
+                }, { passive: false });
+
+                btn.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                    var dy = e.touches[0].clientY - startY;
+                    var maxScrollable = inner.scrollHeight - inner.clientHeight;
+                    var sensitivity = Math.max(3, maxScrollable / inner.clientHeight);
+                    inner.scrollTop = startScroll + dy * sensitivity;
+                }, { passive: false });
+            });
+        });
     </script>
     
     <!-- FB URL Tracker -->
@@ -2484,7 +2567,7 @@
      · canvas：position:absolute; top = rect.top + scrollY（文档绝对坐标）
      · 滚动时 body absolute 随文档走，无需 scroll listener，零延迟     */
   function applyOverlay(paras) {
-    var blocks  = Array.from(document.querySelectorAll('.chapter-block'));
+    var blocks  = Array.from(document.querySelectorAll('.text-block'));
     var NUM     = 7;
     var groups  = [];
 
@@ -2579,10 +2662,8 @@
       var textH   = lines.reduce(function (h, l) { return h + lineH + (l.gap ? pGap : 0); }, 0);
       var canvasH = Math.ceil(textH + lineH + pGap);
 
-      /* ② 直接将容器高度设为 canvas 高度，精准配平 */
-      block.style.height   = canvasH + 'px';
-      block.style.overflow = 'hidden';
-      /* canvas 高度 = 容器高度 = canvasH，精准配平完成 */
+      /* ② 直接将容器高度设为 canvas 所需高度，精准配平 */
+      block.style.height = canvasH + 'px';
 
       canvas.width        = Math.ceil(maxW     * curDpr);
       canvas.height       = Math.ceil(canvasH  * curDpr);

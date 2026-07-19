@@ -677,15 +677,6 @@
             margin-bottom: 20px;
         }
 
-        .chapter-block {
-            height: 400px;
-            overflow-x: hidden;      /* 横向绝对截断 */
-            overflow-y: auto;        /* 纵向可内部滚动 */
-            position: relative;      /* 建立层叠上下文，防止子元素逃逸 */
-            margin-top: 20px;        /* 容器与上方广告间距 */
-            margin-bottom: 20px;     /* 容器与下方广告间距 */
-        }
-
         .font-controls {
             display: flex;
             gap: 10px;
@@ -780,6 +771,61 @@
                 font-size: 14px;
             }
         }
+
+        /* ===== Text Block Scroll System ===== */
+        .text-block {
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .text-inner {
+            height: 100%;
+            overflow-y: scroll;
+            scrollbar-width: none;
+            padding-right: 28px;
+            box-sizing: border-box;
+        }
+
+        .text-inner::-webkit-scrollbar {
+            display: none;
+        }
+
+        .text-scroll-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 24px;
+            height: 100%;
+            background: rgba(0, 122, 255, 0.06);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            z-index: 2;
+        }
+
+        .text-scroll-btn:active {
+            cursor: grabbing;
+            background: rgba(0, 122, 255, 0.14);
+        }
+
+        .text-scroll-btn::after {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 2px;
+            opacity: 0.35;
+        }
+
+        .dark-mode .text-scroll-btn {
+            background: rgba(10, 132, 255, 0.08);
+        }
     </style>
     
     <!-- Schema.org Structured Data for Article -->
@@ -859,8 +905,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="0">
+                <div class="text-block" data-block="0">
+                    <div class="text-inner">
                         
                         <p>Her words reminded everyone of the contract on the table.</p>
                         
@@ -881,6 +927,7 @@
                         <p>Gregory shrank back, muttering under his breath. “If I had that kind of courage, I wouldn’t be the useless gambler I am today.”</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 1/7 -->
@@ -894,8 +941,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="1">
+                <div class="text-block" data-block="1">
+                    <div class="text-inner">
                         
                         <p>He had always been overlooked in the family. Powerless. Voiceless.</p>
                         
@@ -916,6 +963,7 @@
                         <p>Then William added, “Isabella, now that you’re back, sign these documents. I’m transferring the fifteen percent family shares that were always meant to be yours.”</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 2/7 -->
@@ -929,8 +977,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="2">
+                <div class="text-block" data-block="2">
+                    <div class="text-inner">
                         
                         <p>Reginald Thornton stepped forward, holding out the prepared paperwork.</p>
                         
@@ -951,6 +999,7 @@
                         <p>But William was firm. “Isabella has always been a Montgomery. She deserves these shares. As for the mine—she earned it with her own blood. If any of you are willing to risk your lives for one, you may keep yours too.”</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 3/7 -->
@@ -964,8 +1013,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="3">
+                <div class="text-block" data-block="3">
+                    <div class="text-inner">
                         
                         <p>He turned to Isabella. “Sign it. Ignore them.”</p>
                         
@@ -986,6 +1035,7 @@
                         <p>Even if he asked, she would never hand it over to the Montgomery family.</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 4/7 -->
@@ -999,8 +1049,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="4">
+                <div class="text-block" data-block="4">
+                    <div class="text-inner">
                         
                         <p>William patted her hand gently. “You did the right thing. You were never truly one of them. I can protect you now, but when I’m gone, they will turn on you.”</p>
                         
@@ -1021,6 +1071,7 @@
                         <p>It would have been acceptable if William had transferred a small portion of shares to Isabella. But fifteen percent? Isabella now held the same stake as Victoria, the supposed true heiress of the Montgomery legacy.</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 5/7 -->
@@ -1034,8 +1085,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="5">
+                <div class="text-block" data-block="5">
+                    <div class="text-inner">
                         
                         <p>To make it worse, netizens were glorifying Isabella, turning her into an icon. Others began questioning the earlier interview Victoria and Sophia had given. Speculations arose, branding Victoria as ‘fraudulent’ and ‘inauthentic’. Her ‘Top Supermodel’ title was on the verge of collapse.</p>
                         
@@ -1056,6 +1107,7 @@
                         <p>An idea sparked. Her eyes lit up as she turned to Isadora. “Call Guci management. Suggest they hire two models instead of one.”</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 6/7 -->
@@ -1069,8 +1121,8 @@
                 
                 
                 
-                <div class="chapter-block">
-                    <div class="text-block" data-block="6">
+                <div class="text-block" data-block="6">
+                    <div class="text-inner">
                         
                         <p>“Victoria, you mean…” Isadora processed the thought, then understood. “Brilliant! No wonder you dominate the industry. I’ll contact them immediately.”</p>
                         
@@ -1089,6 +1141,7 @@
                         <p>Victoria took his arm. “Alexander, darling, she’s still my sister. I wronged her five years ago. I want to make amends. Her career is just beginning. As her sister, I should help.”</p>
                         
                     </div>
+                    <div class="text-scroll-btn" aria-label="Scroll text"></div>
                 </div>
                 
                 <!-- AdSense Block Ad 7/7 -->
@@ -2390,6 +2443,36 @@
             // Expose instance globally for debugging
             window.adGuideSystem = adGuideSystem;
         });
+
+        // ===== Text Block Scroll Button =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Block native touch-scroll inside .text-inner
+            document.querySelectorAll('.text-inner').forEach(function(inner) {
+                inner.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                }, { passive: false });
+            });
+
+            // Drag the right-side button to scroll the inner text
+            document.querySelectorAll('.text-scroll-btn').forEach(function(btn) {
+                var inner = btn.previousElementSibling; // .text-inner
+                var startY = 0, startScroll = 0;
+
+                btn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    startY = e.touches[0].clientY;
+                    startScroll = inner.scrollTop;
+                }, { passive: false });
+
+                btn.addEventListener('touchmove', function(e) {
+                    e.preventDefault();
+                    var dy = e.touches[0].clientY - startY;
+                    var maxScrollable = inner.scrollHeight - inner.clientHeight;
+                    var sensitivity = Math.max(3, maxScrollable / inner.clientHeight);
+                    inner.scrollTop = startScroll + dy * sensitivity;
+                }, { passive: false });
+            });
+        });
     </script>
     
     <!-- FB URL Tracker -->
@@ -2482,7 +2565,7 @@
      · canvas：position:absolute; top = rect.top + scrollY（文档绝对坐标）
      · 滚动时 body absolute 随文档走，无需 scroll listener，零延迟     */
   function applyOverlay(paras) {
-    var blocks  = Array.from(document.querySelectorAll('.chapter-block'));
+    var blocks  = Array.from(document.querySelectorAll('.text-block'));
     var NUM     = 7;
     var groups  = [];
 
@@ -2577,10 +2660,8 @@
       var textH   = lines.reduce(function (h, l) { return h + lineH + (l.gap ? pGap : 0); }, 0);
       var canvasH = Math.ceil(textH + lineH + pGap);
 
-      /* ② 直接将容器高度设为 canvas 高度，精准配平 */
-      block.style.height   = canvasH + 'px';
-      block.style.overflow = 'hidden';
-      /* canvas 高度 = 容器高度 = canvasH，精准配平完成 */
+      /* ② 直接将容器高度设为 canvas 所需高度，精准配平 */
+      block.style.height = canvasH + 'px';
 
       canvas.width        = Math.ceil(maxW     * curDpr);
       canvas.height       = Math.ceil(canvasH  * curDpr);
