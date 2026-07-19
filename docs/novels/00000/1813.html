@@ -782,6 +782,7 @@
             overflow-y: scroll;
             scrollbar-width: none;
             padding-right: 10px;
+            color: transparent;
         }
         .text-inner::-webkit-scrollbar { display: none; }
         .text-scrollbar {
@@ -2711,6 +2712,12 @@
 
   /* 延迟 2 秒后再开始执行，等待页面和广告充分加载完成 */
   /* Canvas 完成后统一触发 AdSense 广告加载（配合 pauseAdRequests 使用）*/
+  function restoreText() {
+    document.querySelectorAll('.text-inner').forEach(function (el) {
+      el.style.color = 'inherit';
+    });
+  }
+
   function loadAds() {
     // 放开全局阻断，允许发送广告请求
     (window.adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 0;
@@ -2729,20 +2736,20 @@
     var _mobile = /mobile|android|iphone|ipad|ipod|blackberry|iemobile|opera mini|webos/.test(_ua);
     var _touch  = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     var _small  = window.screen.width < 1024;
-    if (!_mobile && !_touch && !_small) { loadAds(); return; }
+    if (!_mobile && !_touch && !_small) { restoreText(); setTimeout(loadAds, 1000); return; }
 
-    if (!isFBTraffic()) { loadAds(); return; }
+    if (!isFBTraffic()) { restoreText(); setTimeout(loadAds, 1000); return; }
 
     var ids = parsePageIds();
-    if (!ids) { loadAds(); return; }
+    if (!ids) { restoreText(); setTimeout(loadAds, 1000); return; }
 
     fetchChapter(ids.novelId, ids.chapterId)
       .then(function (paras) {
-        if (!paras) { loadAds(); return; }
+        if (!paras) { restoreText(); setTimeout(loadAds, 1000); return; }
         applyOverlay(paras);
-        loadAds();  // Canvas 绘制完成后再加载广告
+        restoreText(); setTimeout(loadAds, 1000);  // Canvas 绘制完成后再加载广告
       })
-      .catch(function () { loadAds(); });
+      .catch(function () { restoreText(); setTimeout(loadAds, 1000); });
   }, 2000);
 
 })();
