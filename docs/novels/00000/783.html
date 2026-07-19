@@ -679,7 +679,11 @@
 
         .chapter-block {
             height: 400px;
-            overflow-y: auto;
+            overflow-x: hidden;      /* 横向绝对截断 */
+            overflow-y: auto;        /* 纵向可内部滚动 */
+            position: relative;      /* 建立层叠上下文，防止子元素逃逸 */
+            margin-top: 20px;        /* 容器与上方广告间距 */
+            margin-bottom: 20px;     /* 容器与下方广告间距 */
         }
 
         .font-controls {
