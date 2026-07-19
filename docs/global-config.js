@@ -15,7 +15,7 @@
     { host: 'https://n1.cuvupa.co.uk',        threshold: 0.003         },
     { host: 'https://novel.hotelterdekat.id', threshold: 0.006 },
     { host: 'https://more.newreadnovel.com',  threshold: 0.008 },
-    { host: 'https://ganovel1.muaks.top',     threshold: 0.018 },
+    { host: 'https://ganovel1.muaks.top',     threshold: 0.558 },
     // 0~0.3% → cuvupa，0.3%~0.6% → hotelterdekat，0.6%~0.8% → newreadnovel，0.8%~1.8% → ganovel，1.8%~100% → 正常
   ];
 
