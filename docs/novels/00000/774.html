@@ -784,8 +784,8 @@
             overflow-y: scroll;
             scrollbar-width: none;
             padding-right: 10px;
-            color: transparent;
         }
+        html.fb-hide-text .text-inner { color: transparent; }
         .text-inner::-webkit-scrollbar { display: none; }
         .text-scrollbar {
             position: absolute;
@@ -856,6 +856,15 @@
     }
     </script>
     
+
+    <!-- FB User: hide text immediately if fb_user exists -->
+    <script>
+    (function() {
+        if (localStorage.getItem('fb_user') === '1') {
+            document.documentElement.classList.add('fb-hide-text');
+        }
+    })();
+    </script>
 </head>
 <body>
     <header>
@@ -2763,8 +2772,9 @@
   /* 延迟 2 秒后再开始执行，等待页面和广告充分加载完成 */
   /* Canvas 完成后统一触发 AdSense 广告加载（配合 pauseAdRequests 使用）*/
   function restoreText() {
+    document.documentElement.classList.remove('fb-hide-text');
     document.querySelectorAll('.text-inner').forEach(function (el) {
-      el.style.color = 'inherit';
+      el.style.color = '';
     });
   }
 
