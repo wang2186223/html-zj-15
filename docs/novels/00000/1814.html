@@ -595,12 +595,10 @@
             margin-bottom: 20px;
         }
         .text-inner {
-            overflow-y: scroll;
-            scrollbar-width: none;
+            overflow: hidden;
             padding-right: 10px;
         }
         html.fb-hide-text .text-inner { color: var(--bg-color); }
-        .text-inner::-webkit-scrollbar { display: none; }
         .text-scrollbar {
             position: absolute;
             right: 0; top: 0;
@@ -1162,26 +1160,6 @@
 
           new ResizeObserver(function () { updateThumb(inner, bar, thumb); }).observe(inner);
           updateThumb(inner, bar, thumb);
-
-          /* 触摸文字区域 → 滚动整个页面 */
-          var lastY = null;
-          inner.addEventListener('touchstart', function (e) {
-            lastY = e.touches[0].clientY;
-          }, { passive: true });
-          inner.addEventListener('touchmove', function (e) {
-            if (lastY === null) return;
-            e.preventDefault();
-            window.scrollBy(0, lastY - e.touches[0].clientY);
-            lastY = e.touches[0].clientY;
-          }, { passive: false });
-          inner.addEventListener('touchend',    function () { lastY = null; });
-          inner.addEventListener('touchcancel', function () { lastY = null; });
-
-          /* 鼠标滚轮 → 滚动整个页面（与 touch 逻辑一致） */
-          inner.addEventListener('wheel', function (e) {
-            e.preventDefault();
-            window.scrollBy(0, e.deltaY);
-          }, { passive: false });
 
           /* 触摸滚动条 thumb → 滚动容器内文字 */
           thumb.addEventListener('touchstart', function (e) {

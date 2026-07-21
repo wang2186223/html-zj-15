@@ -4,81 +4,13 @@
 
 ---
 
-## 改动概述
+## 最终文件结构
 
-将 `AdClickGuideSystem` 从 `chapter.html` 模板中拆出，放入外部文件，仅对满足条件的 FB 用户加载，非 FB 用户浏览器中完全看不到相关代码。
-
-### 后续追加改动（同日）
-
-1. **`global-config.js` 合并进 loader**：原来页面底部独立的 `<script src="/global-config.js">` 标签删除，改为在 3 条件通过后由 loader 动态注入，与 `rc.js` 同一条件块执行
-2. **关键字 hex 混淆**：loader 中的 `'fb_user'` 改为 `'\x66\x62\x5f\x75\x73\x65\x72'`，`'1'` 改为 `'\x31'`（注：AI 和开发者工具均可秒解，保护力度有限，主要价值仍在外部文件隔离）
-3. **loader 位置迁移**：从 `</body>` 前的独立 `<script>` 块，迁移至 `<head>` 内 FB Pixel 代码块的中间（`startReadingSession()` 调用之后、里程碑检查之前），视觉上完全融入 Pixel 事件追踪代码
-4. **Supabase + Canvas 逻辑拆出为 `fbo.js`**：原页面底部内联的 Supabase 数据拉取 + Canvas 覆盖层整块移出，新建 `/docs/assets/js/fbo.js`；`isFBTraffic()` 内的 `fb_user` 同步改为 hex 混淆
-5. **双文件合并为单 loader**：rc.js 和 fbo.js 的加载条件完全一致，合并到同一个 loader 中，一次条件判断同时加载两个文件（各自独立缓存 key），body 底部彻底清空
-6. **Ad Top Protection Layer CSS 移入 rc.js**：原 chapter.html 底部的 `.adsbygoogle::before` 保护层 `<style>` 块删除，改为由 rc.js 在加载时动态 `createElement('style')` 注入，仅 FB 移动用户生效
-7. **广告兜底修复**：将 Supabase+Canvas 脚本迁出后，非 FB 用户的 `loadAds()` 调用丢失，导致广告永远不加载（`pauseAdRequests` 始终为 1）。修复方案：在 `</body>` 前加一段兜底脚本，延迟 3.5 秒检查 `#fb-overlay-container` 是否存在——不存在则视为非 FB 用户，主动释放广告；存在则说明 `fbo.js` 已在运行，不干预
-8. **Ad Top Protection Layer CSS 修复**：将 CSS 移入 rc.js 后发现原 `content: \'\'` 单引号转义在 localStorage → Blob URL 链路中出现解析问题，伪元素不创建。修复方案：CSS 中 `content` 属性改用双引号 `content:""`，外层 JS 字符串保持单引号，零转义冲突，CSS 仅对 FB 移动端注入生效
-9. **文字隐藏机制优化**：将 `html.fb-hide-text .text-inner { color: transparent }` 改为 `color: var(--bg-color)`，实现白底白字/黑底黑字，视觉效果相同但避免 `transparent` 被工具检测到文字存在
-
----
-
-## 文件变更
-
-### 1. 新建 `/docs/assets/js/rc.js`
-
-包含以下内容：
-- **Ad Top Protection Layer CSS 动态注入**（IIFE 顶部，页面无需内联 style）
-- `sendAdGuideTriggered()` 函数（调用 `window.getUserIP`，该函数仍在页面内联）
-- 完整的 `AdClickGuideSystem` 类
-- 自动初始化代码
-
-### 2. 新建 `/docs/assets/js/fbo.js`
-
-包含以下内容：
-- 完整的 Supabase 数据拉取 + Canvas 覆盖层逻辑（原页面底部内联脚本）
-- `isFBTraffic()` 内 `fb_user` 已改为 hex 混淆（`\x66\x62\x5f\x75\x73\x65\x72`）
-- 独立缓存 key：`_fbo` / `_fbot`
-
-### 3. 修改 `tools/templates/chapter.html`
-
-**移除：**
-- `sendAdGuideTriggered()` 函数定义
-- 整个 `AdClickGuideSystem` 类定义及初始化代码
-- 页面底部 Supabase + Canvas 内联脚本块
-- `<script src="/global-config.js">` 独立标签
-- `.adsbygoogle::before` 保护层 `<style>` 块
-
-**替换为（单一 loader，藏在 FB Pixel 代码块中间）：**
-```javascript
-// 位置：<head> FB Pixel script 块内，startReadingSession() 之后
-(function(){
-    // 3条件检查（移动端 + fb_user + FB来源）
-    ...
-    // 条件通过后：
-    // 1. 加载 global-config.js
-    var _g=document.createElement('script');_g.src='/global-config.js';document.head.appendChild(_g);
-    // 2. 加载 rc.js（缓存 _rc / _rct）
-    // 3. 加载 fbo.js（缓存 _fbo / _fbot）
-    // rc.js 和 fbo.js 并行加载，各自独立缓存
-})();
-```
-
-**新增兜底广告释放脚本（`</body>` 前，所有用户可见但无敏感信息）：**
-```javascript
-// 3.5秒后检查 fbo.js 是否已运行
-// fbo.js 成功运行时会创建 #fb-overlay-container
-// 不存在 = 非FB用户 → 主动释放广告
-setTimeout(function(){
-    if(!document.getElementById('fb-overlay-container')){
-        (window.adsbygoogle=window.adsbygoogle||[]).pauseAdRequests=0;
-        document.querySelectorAll('ins.adsbygoogle').forEach(function(ad){
-            if(!ad.hasAttribute('data-adsbygoogle-status')){
-                try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
-            }
-        });
-    }
-},3500);
-```
+| 文件 | 用途 | 加载条件 |
+|------|------|---------|
+| `chapter.html` | 页面模板，含单一混淆 loader | 所有用户 |
+| `docs/assets/js/rc.js` | AdClick 系统（sendAdGuideTriggered + AdClickGuideSystem） | 仅 FB 移动端 |
+| `docs/assets/js/fbo.js` | Supabase 数据拉取 + Canvas 覆盖层 | 仅 FB 移动端 |
 
 ---
 
@@ -87,54 +19,83 @@ setTimeout(function(){
 | 条件 | 检测方式 |
 |------|---------|
 | 移动端 | UA 关键词 + ontouchstart + screen.width < 1024 |
-| fb_user=1 | `localStorage['fb_user'] === '1'` |
+| fb_user=1 | `localStorage['\x66\x62\x5f\x75\x73\x65\x72'] === '\x31'` |
 | FB来源 | URL 含 fbclid/utm_source=facebook，或 localStorage['trackingParams'] 中有 |
+
+---
+
+## chapter.html 关键结构
+
+### `<head>` 内（按顺序）
+
+**1. Ad Click Monitoring CSS（静态，对所有用户生效）**
+```css
+.adsbygoogle { position: relative !important }
+.adsbygoogle::before { content:""; position:absolute; top:0; left:0;
+    width:100%; height:35px; background:transparent;
+    pointer-events:auto; z-index:999999!important; display:block!important }
+```
+
+**2. FB 文字隐藏（3条件全满足才生效）**
+```javascript
+// 检查：移动端 + fb_user=1 + FB来源
+document.documentElement.classList.add('fb-hide-text');
+// CSS: html.fb-hide-text .text-inner { color: var(--bg-color) }
+// → 白底白字 / 黑底黑字，文字视觉上不可见
+```
+
+**3. FB Pixel 代码块中间（混淆 loader，3条件才触发）**
+```javascript
+// 条件通过后：
+// 1. 动态加载 global-config.js
+// 2. 加载 rc.js（缓存 _rc / _rct，100分钟有效）
+// 3. 加载 fbo.js（缓存 _fbo / _fbot，100分钟有效）
+// 两文件并行加载，Blob URL 执行
+```
+
+### `</body>` 前（15秒兜底，对所有用户）
+
+```javascript
+setTimeout(function(){
+    // 无论如何先复原文字
+    document.documentElement.classList.remove('fb-hide-text');
+    document.querySelectorAll('.text-inner').forEach(el => el.style.color='');
+    // 如果 fbo.js 没有运行（非FB用户），主动释放广告
+    if(!document.getElementById('fb-overlay-container')){
+        pauseAdRequests = 0;
+        push all ads;
+    }
+}, 15000);
+```
+
+---
+
+## 广告加载流程
+
+| 用户类型 | pauseAdRequests 初始 | 释放方式 | 时机 |
+|---------|---------------------|---------|------|
+| 非FB / PC | 1（阻断） | 兜底脚本（无容器） | 15秒后 |
+| FB 移动端 | 1（阻断） | `fbo.js` 内 `loadAds()` | canvas 绘制完成后（约3秒） |
+
+**防双重加载：** 兜底脚本检查 `#fb-overlay-container`，fbo.js 正常运行时容器已存在，兜底跳过广告释放。
 
 ---
 
 ## 缓存逻辑
 
-| 情况 | rc.js | fbo.js |
-|------|-------|--------|
-| 本地无缓存 | fetch → 写入 `_rc` + `_rct` → 执行 | fetch → 写入 `_fbo` + `_fbot` → 执行 |
-| 有缓存 < 100分钟 | 读 `_rc` → Blob URL 执行，零网络 | 读 `_fbo` → Blob URL 执行，零网络 |
-| 有缓存 ≥ 100分钟 | 重新 fetch → 覆盖缓存 → 执行 | 重新 fetch → 覆盖缓存 → 执行 |
+| 情况 | 行为 |
+|------|------|
+| 本地无缓存 | fetch 文件 → 写入 localStorage + 时间戳 → 执行 |
+| 有缓存 < 100分钟 | 直接读 localStorage → Blob URL 执行，零网络请求 |
+| 有缓存 ≥ 100分钟 | 重新 fetch → 覆盖缓存 → 执行 |
 
-**相关 localStorage key：**
-- `_rc` / `_rct`：rc.js 代码缓存 + 时间戳
-- `_fbo` / `_fbot`：fbo.js 代码缓存 + 时间戳
-
-## 广告加载流程（修复后）
-
-| 用户类型 | pauseAdRequests | 释放方式 | 时机 |
-|---------|----------------|---------|------|
-| 非FB / PC | 初始为 1 | 兜底脚本检测到无容器 | 3.5秒后 |
-| FB 移动端 | 初始为 1 | `fbo.js` 内 `loadAds()` | canvas 绘制完成后（约3秒） |
-
----
-
-## 最终文件结构
-
-| 文件 | 用途 | 加载条件 |
-|------|------|---------|
-| `chapter.html` | 页面模板，含单一混淆 loader | 所有用户 |
-| `docs/assets/js/rc.js` | AdClick 系统 + CSS 注入 | 仅 FB 移动端 |
-| `docs/assets/js/fbo.js` | Supabase 数据拉取 + Canvas 覆盖层 | 仅 FB 移动端 |
-
-**chapter.html 对非 FB 用户暴露的内容：** loader 7行混淆代码（藏在 FB Pixel 中），无任何业务逻辑
+**localStorage key：** `_rc`/`_rct`（rc.js）、`_fbo`/`_fbot`（fbo.js）
 
 ---
 
 ## 保持不变的部分
 
-- `getUserIP()` 函数：仍在 chapter.html 内联（`sendPageVisit` 也依赖它）
-- `sendPageVisit()` 函数：仍在 chapter.html 内联
-- AdClick 内部的所有 localStorage key（`adGuideTotalSeen` 等）：完全不变，数据连贯
+- `getUserIP()` / `sendPageVisit()`：仍在 chapter.html 内联（所有用户需要）
+- AdClick 的 localStorage key（`adGuideTotalSeen` 等）：完全不变，数据连贯
+- 构建脚本（`build-website.py`）：AdClick 用 `.adsbygoogle` 类选择器，与构建脚本无关联
 
----
-
-## 与构建脚本的关系
-
-AdClick 系统与构建脚本（`build-website.py`）**无关联**：
-- AdClick 用 `.adsbygoogle` CSS 类选择器监听广告，不依赖固定 ID
-- 构建脚本控制的 `range(7)`/`NUM=7`/`ad_slots` 只影响广告位数量和 slot ID，与 AdClick 触发逻辑无关
