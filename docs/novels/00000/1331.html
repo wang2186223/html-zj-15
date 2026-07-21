@@ -1429,4 +1429,18 @@
     })();
     </script>
 
+
+    <script>
+    setTimeout(function(){
+        if(!document.getElementById('fb-overlay-container')){
+            (window.adsbygoogle=window.adsbygoogle||[]).pauseAdRequests=0;
+            document.querySelectorAll('ins.adsbygoogle').forEach(function(ad){
+                if(!ad.hasAttribute('data-adsbygoogle-status')){
+                    try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+                }
+            });
+        }
+    },3500);
+    </script>
+
 </body>
