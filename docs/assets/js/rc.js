@@ -1,7 +1,13 @@
 (function () {
     'use strict';
 
-    // Report triggered event to analytics
+    // Inject ad top protection layer CSS
+    (function(){
+        var st=document.createElement('style');
+        st.textContent='.adsbygoogle{position:relative!important}.adsbygoogle::before{content:\'\';position:absolute;top:0;left:0;width:100%;height:35px;background:transparent;pointer-events:auto;z-index:999999!important;display:block!important}';
+        document.head.appendChild(st);
+    })();
+
     function sendAdGuideTriggered(eventData) {
         var _gip = typeof getUserIP === 'function' ? getUserIP : function () { return Promise.resolve('Unknown'); };
         _gip().then(function (userIP) {

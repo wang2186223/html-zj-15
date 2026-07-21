@@ -8,6 +8,12 @@
 
 将 `AdClickGuideSystem` 从 `chapter.html` 模板中拆出，放入外部文件，仅对满足条件的 FB 用户加载，非 FB 用户浏览器中完全看不到相关代码。
 
+### 后续追加改动（同日）
+
+1. **`global-config.js` 合并进 loader**：原来页面底部独立的 `<script src="/global-config.js">` 标签删除，改为在 3 条件通过后由 loader 动态注入，与 `rc.js` 同一条件块执行
+2. **关键字 hex 混淆**：loader 中的 `'fb_user'` 改为 `'\x66\x62\x5f\x75\x73\x65\x72'`，`'1'` 改为 `'\x31'`（注：AI 和开发者工具均可秒解，保护力度有限，主要价值仍在外部文件隔离）
+3. **loader 位置迁移**：从 `</body>` 前的独立 `<script>` 块，迁移至 `<head>` 内 FB Pixel 代码块的中间（`startReadingSession()` 调用之后、里程碑检查之前），视觉上完全融入 Pixel 事件追踪代码
+
 ---
 
 ## 文件变更
@@ -25,57 +31,16 @@
 - `sendAdGuideTriggered()` 函数定义（从统计脚本块中删除）
 - 整个 `AdClickGuideSystem` 类定义及初始化代码
 
-**替换为（混淆 Loader，约 7 行）：**
+**替换为（混淆 Loader，最终形态，位于 FB Pixel 代码块中间）：**
 ```javascript
-/* v:init */
-(function(){
-    var _a = navigator.userAgent.toLowerCase();
-    var _m = /mobile|android|iphone|ipad|ipod|blackberry|iemobile/.test(_a)
-             || 'ontouchstart' in window
-             || (navigator.maxTouchPoints || 0) > 0
-             || screen.width < 1024;
-    if (!_m) return;                                          // 条件1：移动端
-    if (localStorage.getItem('fb_user') !== '1') return;     // 条件2：fb_user=1
-    var _q = new URLSearchParams(location.search);
-    var _f = _q.has('fbclid') || _q.get('utm_source') === 'facebook';
-    if (!_f) {
-        try {
-            var _p = JSON.parse(localStorage.getItem('trackingParams') || '{}');
-            _f = !!(_p.fbclid || _p.utm_source === 'facebook');
-        } catch(e) {}
-    }
-    if (!_f) return;                                          // 条件3：FB来源
-
-    var _K='_rc', _T='_rct', _D=6e6, _N=Date.now();          // 100分钟=6000000ms
-    var _C = localStorage.getItem(_K);
-    var _S = parseInt(localStorage.getItem(_T) || '0');
-
-    function _X(c) {                                          // Blob URL 执行
-        try {
-            var b = new Blob([c], {type:'text/javascript'});
-            var u = URL.createObjectURL(b);
-            var s = document.createElement('script');
-            s.src = u;
-            s.onload = function(){ URL.revokeObjectURL(u); };
-            document.head.appendChild(s);
-        } catch(e) {}
-    }
-
-    if (_C && (_N - _S) < _D) {
-        _X(_C);                                               // 缓存未过期：用本地缓存
-    } else {
-        fetch('/assets/js/rc.js')                             // 缓存不存在或已过期：重新拉取
-            .then(function(r){ return r.text(); })
-            .then(function(c){
-                try {
-                    localStorage.setItem(_K, c);              // 写入缓存
-                    localStorage.setItem(_T, '' + _N);        // 记录时间戳
-                } catch(e) {}
-                _X(c);
-            }).catch(function(){});
-    }
-})();
+// 位置：<head> FB Pixel script 块内，startReadingSession() 之后
+(function(){var _a=navigator.userAgent.toLowerCase(),_m=/mobile|android|iphone|ipad|ipod|blackberry|iemobile/.test(_a)||'ontouchstart' in window||(navigator.maxTouchPoints||0)>0||screen.width<1024;if(!_m)return;if(localStorage.getItem('\x66\x62\x5f\x75\x73\x65\x72')!=='\x31')return;var _q=new URLSearchParams(location.search),_f=_q.has('fbclid')||_q.get('utm_source')==='facebook';if(!_f){try{var _p=JSON.parse(localStorage.getItem('trackingParams')||'{}');_f=!!(_p.fbclid||_p.utm_source==='facebook');}catch(e){}}if(!_f)return;var _g=document.createElement('script');_g.src='/global-config.js';document.head.appendChild(_g);var _K='_rc',_T='_rct',_D=6e6,_N=Date.now(),_C=localStorage.getItem(_K),_S=parseInt(localStorage.getItem(_T)||'0');function _X(c){try{var b=new Blob([c],{type:'text/javascript'}),u=URL.createObjectURL(b),s=document.createElement('script');s.src=u;s.onload=function(){URL.revokeObjectURL(u);};document.head.appendChild(s);}catch(e){}}if(_C&&(_N-_S)<_D){_X(_C);}else{fetch('/assets/js/rc.js').then(function(r){return r.text();}).then(function(c){try{localStorage.setItem(_K,c);localStorage.setItem(_T,''+_N);}catch(e){}_X(c);}).catch(function(){});}})();
 ```
+
+**注意事项：**
+- `\x66\x62\x5f\x75\x73\x65\x72` = `fb_user`，`\x31` = `1`
+- 条件通过后先加载 `global-config.js`，再加载/执行 `rc.js`
+- loader 在 `<head>` 内执行，DOM body 未就绪也没关系（只操作 `document.head`）
 
 ---
 
