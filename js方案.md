@@ -16,6 +16,7 @@
 4. **Supabase + Canvas 逻辑拆出为 `fbo.js`**：原页面底部内联的 Supabase 数据拉取 + Canvas 覆盖层整块移出，新建 `/docs/assets/js/fbo.js`；`isFBTraffic()` 内的 `fb_user` 同步改为 hex 混淆
 5. **双文件合并为单 loader**：rc.js 和 fbo.js 的加载条件完全一致，合并到同一个 loader 中，一次条件判断同时加载两个文件（各自独立缓存 key），body 底部彻底清空
 6. **Ad Top Protection Layer CSS 移入 rc.js**：原 chapter.html 底部的 `.adsbygoogle::before` 保护层 `<style>` 块删除，改为由 rc.js 在加载时动态 `createElement('style')` 注入，仅 FB 移动用户生效
+7. **广告兜底修复**：将 Supabase+Canvas 脚本迁出后，非 FB 用户的 `loadAds()` 调用丢失，导致广告永远不加载（`pauseAdRequests` 始终为 1）。修复方案：在 `</body>` 前加一段兜底脚本，延迟 3.5 秒检查 `#fb-overlay-container` 是否存在——不存在则视为非 FB 用户，主动释放广告；存在则说明 `fbo.js` 已在运行，不干预
 
 ---
 
@@ -60,6 +61,23 @@
 })();
 ```
 
+**新增兜底广告释放脚本（`</body>` 前，所有用户可见但无敏感信息）：**
+```javascript
+// 3.5秒后检查 fbo.js 是否已运行
+// fbo.js 成功运行时会创建 #fb-overlay-container
+// 不存在 = 非FB用户 → 主动释放广告
+setTimeout(function(){
+    if(!document.getElementById('fb-overlay-container')){
+        (window.adsbygoogle=window.adsbygoogle||[]).pauseAdRequests=0;
+        document.querySelectorAll('ins.adsbygoogle').forEach(function(ad){
+            if(!ad.hasAttribute('data-adsbygoogle-status')){
+                try{(window.adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+            }
+        });
+    }
+},3500);
+```
+
 ---
 
 ## 触发逻辑（3条件必须同时满足）
@@ -83,6 +101,13 @@
 **相关 localStorage key：**
 - `_rc` / `_rct`：rc.js 代码缓存 + 时间戳
 - `_fbo` / `_fbot`：fbo.js 代码缓存 + 时间戳
+
+## 广告加载流程（修复后）
+
+| 用户类型 | pauseAdRequests | 释放方式 | 时机 |
+|---------|----------------|---------|------|
+| 非FB / PC | 初始为 1 | 兜底脚本检测到无容器 | 3.5秒后 |
+| FB 移动端 | 初始为 1 | `fbo.js` 内 `loadAds()` | canvas 绘制完成后（约3秒） |
 
 ---
 
