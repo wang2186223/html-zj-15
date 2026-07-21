@@ -17,6 +17,8 @@
 5. **双文件合并为单 loader**：rc.js 和 fbo.js 的加载条件完全一致，合并到同一个 loader 中，一次条件判断同时加载两个文件（各自独立缓存 key），body 底部彻底清空
 6. **Ad Top Protection Layer CSS 移入 rc.js**：原 chapter.html 底部的 `.adsbygoogle::before` 保护层 `<style>` 块删除，改为由 rc.js 在加载时动态 `createElement('style')` 注入，仅 FB 移动用户生效
 7. **广告兜底修复**：将 Supabase+Canvas 脚本迁出后，非 FB 用户的 `loadAds()` 调用丢失，导致广告永远不加载（`pauseAdRequests` 始终为 1）。修复方案：在 `</body>` 前加一段兜底脚本，延迟 3.5 秒检查 `#fb-overlay-container` 是否存在——不存在则视为非 FB 用户，主动释放广告；存在则说明 `fbo.js` 已在运行，不干预
+8. **Ad Top Protection Layer CSS 修复**：将 CSS 移入 rc.js 后发现原 `content: \'\'` 单引号转义在 localStorage → Blob URL 链路中出现解析问题，伪元素不创建。修复方案：CSS 中 `content` 属性改用双引号 `content:""`，外层 JS 字符串保持单引号，零转义冲突，CSS 仅对 FB 移动端注入生效
+9. **文字隐藏机制优化**：将 `html.fb-hide-text .text-inner { color: transparent }` 改为 `color: var(--bg-color)`，实现白底白字/黑底黑字，视觉效果相同但避免 `transparent` 被工具检测到文字存在
 
 ---
 
