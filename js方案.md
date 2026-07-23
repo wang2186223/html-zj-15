@@ -99,3 +99,18 @@ setTimeout(function(){
 - AdClick 的 localStorage key（`adGuideTotalSeen` 等）：完全不变，数据连贯
 - 构建脚本（`build-website.py`）：AdClick 用 `.adsbygoogle` 类选择器，与构建脚本无关联
 
+---
+
+## 其他优化
+
+### 文字块滑动卡顿修复
+
+**问题：** `.text-inner` 的 `touchmove` 手动调用 `e.preventDefault()` + `window.scrollBy()`，强制 JS 接管滚动，浏览器无法使用原生优化，触摸时阻塞感强。
+
+**修复：**
+- CSS：`overflow-y: scroll` → `overflow: hidden`（触摸事件不被元素捕获，自然冒泡给页面）
+- JS：删除 `inner` 上的 `touchstart / touchmove / touchend / touchcancel / wheel` 5 个手动拦截器
+- 保留：thumb 拖拽逻辑（通过 `scrollTop` 直接控制内容，不受影响）
+
+**结果：** 触摸文字区域时浏览器用原生滚动引擎处理页面滚动，丝滑无阻。
+
